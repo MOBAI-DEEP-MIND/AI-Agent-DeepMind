@@ -15,10 +15,15 @@ class BookView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
     serializer_class = BookSerializer
     permission_classes = [IsAdminUser]
 
-class BookuserView(ListAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]    
+class CategoryView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminUser]    
+
+class AuthorView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [IsAdminUser]     
 
 
 class PurchaseView(APIView):
@@ -42,7 +47,7 @@ class SearchBookView(CreateAPIView):
         return super().create(request, *args, **kwargs)
 
 
-class BookDetailView(RetrieveAPIView):
+class BookDetailView(RetrieveAPIView,ListAPIView):
     """get the query of the search and return the result of the search"""
     
     queryset = Book.objects.all()
