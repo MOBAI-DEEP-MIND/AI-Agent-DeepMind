@@ -50,5 +50,5 @@ class Busket(models.Model):
 
 class Purchase(models.Model):
     user = models.ForeignKey(CustomUser,related_name='user')   
-    book = models.ForeignKey(Book)   
+    book = models.ManyToManyField(Book)   
     number_books = models.IntegerField()
