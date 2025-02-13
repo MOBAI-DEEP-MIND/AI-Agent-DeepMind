@@ -40,7 +40,21 @@ INSTALLED_APPS = [
     'core',
     'rest_framework',
     'book',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
 ]
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'AI Agent Book API',
+    'DESCRIPTION': 'AI Agent Book API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    # OTHER SETTINGS
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
