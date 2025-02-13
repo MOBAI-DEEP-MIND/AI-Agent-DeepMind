@@ -7,11 +7,12 @@ WORKDIR /app
 RUN apk add --no-cache gcc musl-dev python3-dev libffi-dev postgresql-dev
 
 # Copy the manage.py file and the Backend directory
+COPY ./requirements.txt /app/requirements.txt
 
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r /app/Backend/requirements.txt
+    pip install --no-cache-dir -r /app/requirements.txt
 
 COPY ./manage.py /app/
 COPY . /app/Backend
