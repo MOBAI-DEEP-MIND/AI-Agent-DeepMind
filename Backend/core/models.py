@@ -20,7 +20,7 @@ class Book(models.Model):
     rating = models.FloatField(null=True, blank=True)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    username  = models.CharField(max_length=255, unique=True)
+    username  = models.CharField(max_length=255, unique=True,default='')
     email = models.EmailField(_("email address"), unique=True)
     credit = models.FloatField()
     is_staff = models.BooleanField(default=False)
