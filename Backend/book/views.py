@@ -41,10 +41,10 @@ class SearchBookView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-
+ 
 class BookDetailView(RetrieveAPIView):
     """get the query of the search and return the result of the search"""
-    
+
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
