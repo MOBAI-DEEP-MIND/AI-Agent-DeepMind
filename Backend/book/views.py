@@ -12,20 +12,33 @@ from core.models import CustomUser
 from agents.agent import perform_purchase
 
 
-class BookAdminView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
+class BookAdminListView(ListCreateAPIView):
+    """Admin can list and create books"""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAdminUser]
     authentication_classes = [JWTAuthentication]
 
-class BookView(RetrieveAPIView,ListAPIView):
-    """get the query of the search and return the result of the search"""
+class BookAdminDetailView(RetrieveUpdateDestroyAPIView):
+    """Admin can retrieve, update, or delete a book"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]
 
+class BookView(ListAPIView):
+    """Get a list of books"""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+class BookDetailView(RetrieveAPIView):
+    """Retrieve a specific book"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 
 class CategoryView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
