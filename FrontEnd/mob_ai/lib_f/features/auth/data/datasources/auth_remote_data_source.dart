@@ -5,11 +5,12 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/common/entities/user.dart';
 import '../../../../core/error/exception.dart';
+import '../../../../core/secrets/app_secrets.dart';
 import '../models/user_model.dart';
 
 abstract interface class AuthRemoteDataSource {
   Future<User> signUpWithEmailAndPassword({
-    required String name,
+    required String username,
     required String email,
     required String password,
   });
@@ -32,10 +33,11 @@ class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
     try {
       log('email: $email, password: $password');
       final response = await dio.post(
-        'http://localhost:8000/app/v1/sign_in',
-        queryParameters: {'email': email, 'password': password},
+        '${AppSecrets.baseUrl}/login/',
+       data: {'email': email, 'password': password},
       );
 
+      log(': ${response.data}');
       return UserModel.fromJson(response.data);
     } catch (e) {
       throw ServerException(e.toString());
@@ -44,18 +46,24 @@ class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
 
   @override
   Future<User> signUpWithEmailAndPassword({
-    required String name,
+    required String username,
     required String email,
     required String password,
   }) async {
     try {
-      log('name: $name, email: $email, password: $password');
+      log('name: $username, email: $email, password: $password');
       final response = await dio.post(
-        'http://localhost:8000/app/v1/sign_up',
-        queryParameters: {'name': name, 'email': email, 'password': password},
+        AppSecrets.signUpEndpoint,
+        data: {
+          "email": email,
+          "username": username,
+          "password": password,
+        },
       );
-
       return UserModel.fromJson(response.data);
+    } on DioException catch (e) {
+      log(e.message!);
+      throw ServerException(e.message!);
     } catch (e) {
       throw ServerException(e.toString());
     }

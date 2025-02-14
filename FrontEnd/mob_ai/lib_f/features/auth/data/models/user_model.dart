@@ -10,12 +10,12 @@ class UserModel extends User {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] ?? '',
+      id: json['id']  ?? 0,
      username: json['name'] ?? '',
       email: json['email'] ?? '',
     );
   }
-  UserModel copyWith({String? id, String? username, String? email}) {
+  UserModel copyWith({int? id, String? username, String? email}) {
     return UserModel(
       id: id ?? this.id,
       username: username ?? this.username,

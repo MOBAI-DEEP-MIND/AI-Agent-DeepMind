@@ -8,9 +8,10 @@ class AppTheme {
   //         width: 2,
   //       ),
   //     );
-  static final darkTheme = ThemeData.light().copyWith(
+  static final lightTheme = ThemeData.light().copyWith(
     scaffoldBackgroundColor: Colors.white,
     primaryColor: Color(0xFF2D4059),
+    
   );
   // copyWith(
 

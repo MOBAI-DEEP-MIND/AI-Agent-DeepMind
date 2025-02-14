@@ -1,139 +1,180 @@
-// // import 'package:blog_app_revision/core/common/widgets/loader.dart';
-// // import 'package:blog_app_revision/core/utils/snack_bar.dart';
-// // import 'package:blog_app_revision/core/theme/app_pallete.dart';
-// // import 'package:blog_app_revision/features/auth/presentation/bloc/auth_bloc.dart';
-// // import 'package:blog_app_revision/features/auth/presentation/views/sign_in_view.dart';
-// // import 'package:blog_app_revision/features/auth/presentation/widgets/auth_gradient_button.dart';
-// // import 'package:blog_app_revision/features/auth/presentation/widgets/auth_field.dart';
-// // import 'package:blog_app_revision/features/blogs/presentation/views/bolgs_view.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/common/widgets/loader.dart';
+import '../../../../core/utils/snack_bar.dart';
+import '../../../home/presentation/views/home_view.dart';
+import '../bloc/auth_bloc.dart';
+import '../widgets/auth_text_field.dart';
+import 'sign_in_view.dart';
 
-// import '../../../../core/common/widgets/loader.dart';
-// import '../../../../core/utils/snack_bar.dart';
-// import '../../../home/presentation/views/home_view.dart';
-// import '../bloc/auth_bloc.dart';
-// import '../widgets/auth_field.dart';
-// import '../widgets/auth_gradient_button.dart';
-// import 'sign_in_view.dart';
+class SignUpView extends StatefulWidget {
+  const SignUpView({super.key});
 
-// class SignUpView extends StatefulWidget {
-//   const SignUpView({super.key});
+  @override
+  // ignore: library_private_types_in_public_api
+  _SignUpViewState createState() => _SignUpViewState();
+}
 
-//   @override
-//   State<SignUpView> createState() => _SignUpViewState();
-// }
+class _SignUpViewState extends State<SignUpView> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
 
-// class _SignUpViewState extends State<SignUpView> {
-//   final _formKey = GlobalKey<FormState>();
-//   final TextEditingController _nameController = TextEditingController();
-//   final TextEditingController _emailController = TextEditingController();
-//   final TextEditingController _passwordController = TextEditingController();
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(),
-//       body: Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-//         child: SingleChildScrollView(
-//           child: BlocConsumer<AuthBloc, AuthState>(
-//             listener: (context, state) {
-//               if (state is AuthFailure) {
-//                 showSnackBar(context, state.message);
-//               }
-//               if (state is AuthSuccess) {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) {
-//                       return HomeView();
-//                     },
-//                   ),
-//                 );
-//               }
-//             },
-//             builder: (context, state) {
-//               if (state is AuthLoading) {
-//                 return Loader();
-//               }
-//               return Column(
-//                 spacing: 20,
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   const Text(
-//                     'Sign Up.',
-//                     style: TextStyle(fontSize: 52, fontWeight: FontWeight.bold),
-//                   ),
-//                   Form(
-//                     key: _formKey,
-//                     child: Column(
-//                       spacing: 20,
-//                       mainAxisAlignment: MainAxisAlignment.center,
-//                       children: [
-//                         Authfield(
-//                           controller: _nameController,
-//                           hintText: 'Name',
-//                         ),
-//                         Authfield(
-//                           controller: _emailController,
-//                           hintText: 'Email',
-//                         ),
-//                         Authfield(
-//                           controller: _passwordController,
-//                           hintText: 'Password',
-//                           obscureText: true,
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   AuthGradientButton(
-//                     text: 'Sign Up',
-//                     onTap: () {
-//                       if (_formKey.currentState!.validate()) {
-//                         context.read<AuthBloc>().add(
-//                           AuthSignUp(
-//                             name: _nameController.text.trim(),
-//                             email: _emailController.text.trim(),
-//                             password: _passwordController.text.trim(),
-//                           ),
-//                         );
-//                       }
+  final _passwordController = TextEditingController();
 
-//                       _formKey.currentState!.reset();
-//                     },
-//                   ),
-//                   GestureDetector(
-//                     onTap: () {
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(
-//                           builder: (context) {
-//                             return SignInView();
-//                           },
-//                         ),
-//                       );
-//                     },
-//                     child: RichText(
-//                       text: TextSpan(
-//                         text: 'Already have An Account? ',
-//                         style: Theme.of(context).textTheme.titleMedium,
-//                         children: [TextSpan(text: 'Sign In')],
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               );
-//             },
-//           ),
-//         ),
-//       ),
-//     );
-//   }
+  bool _obscurePassword = true;
 
-//   @override
-//   void dispose() {
-//     _emailController.dispose();
-//     _passwordController.dispose();
-//     super.dispose();
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(24),
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthFailure) {
+              showSnackBar(context, state.message);
+            } else if (state is AuthSuccess) {
+              // navigate
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (context) => HomeView()));
+            }
+          },
+          builder: (context, state) {
+            if (state is AuthLoading) {
+              return Loader();
+            }
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    color: Colors.yellow,
+                    height: MediaQuery.of(context).size.height / 5,
+                    width: double.infinity,
+                  ),
+                  SizedBox(height: 60),
+                  Text(
+                    'Welcome Back!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Sign in to continue your reading journey',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
+                  SizedBox(height: 40),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        AuthTextField(
+                          controller: _usernameController,
+                          label: 'username',
+                          icon: Icons.person_outline,
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Enter a username' : null,
+                        ),
+                        AuthTextField(
+                          controller: _emailController,
+                          label: 'Email',
+                          icon: Icons.email_outlined,
+                          validator:
+                              (value) => value!.isEmpty ? 'Enter email' : null,
+                        ),
+
+                        // Password Field
+                        AuthTextField(
+                          controller: _passwordController,
+                          label: 'Password',
+                          icon: Icons.lock_outline,
+                          obscureText: _obscurePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed:
+                                () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.length < 6
+                                      ? 'Minimum 6 characters'
+                                      : null,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Email Field
+                  SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: () {
+                      if (_formKey.currentState!.validate()) {
+                        context.read<AuthBloc>().add(
+                          AuthSignUp(
+                            username: _usernameController.text.trim(),
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text.trim(),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.black,
+                      ),
+                      alignment: Alignment.center,
+                      width: double.infinity,
+                      child: Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Already have an account? ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => SignInView(),
+                            ),
+                          );
+                        },
+                        child: Text('Sign In'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

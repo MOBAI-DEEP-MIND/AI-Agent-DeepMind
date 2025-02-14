@@ -18,7 +18,7 @@ class AuthRepositoryImplementation implements AuthRepository {
       required String password}) async {
     return _getUser(
       () async => await authRemoteDataSource.signUpWithEmailAndPassword(
-          name: name, email: email, password: password),
+          username: name, email: email, password: password),
     );
   }
 
