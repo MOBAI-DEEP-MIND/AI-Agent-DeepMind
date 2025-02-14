@@ -3,20 +3,26 @@ from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from core.models import Purchase, Book
 from book.serializers import BusketSerializer, BookSerializer
-from llm import generate_response  # Assuming this is your LLM interaction function
-from embeddings import main  # Assuming this is your embedding function
+from .llm import generate_response  # Assuming this is your LLM interaction function
+from .embeddings import main  # Assuming this is your embedding function
 
 
 @tool
-def perform_purchase(query,user_id) -> dict:
+def perform_purchase(query: str, user_id: int) -> dict:
     """Perform a purchase of a book for a user."""
     try:
-
         books = perform_search(query)
-        context_data = main("give me only number of books needed in this query in digits : {query}")
+        context_data = main(f"give me only number of books needed in this query in digits : {query}")
         res = generate_response(query, context_data)
-        number_books = int(res.content)
-        books = perform_search(query)
+
+        try:
+            number_books = int(res.content)
+        except ValueError:
+            return {
+                "status": "error",
+                "message": "Invalid response from LLM: expected a number."
+            }
+
         books = books[:number_books]
         busket = {
             "user": user_id,
@@ -34,20 +40,21 @@ def perform_purchase(query,user_id) -> dict:
                 "status": "error",
                 "message": serializer.errors
             }
-      
+
     except Exception as e:
         return {
             "status": "error",
             "message": str(e)
         }
 
+
 @tool
-def perform_search(query: str) :
+def perform_search(query: str):
     """Perform a search for books based on a query."""
     try:
         context_data = main(query)
         res = generate_response(query, context_data)
-        print(res.content) # This prints the LLM's refined search query
+        print(res.content)  # This prints the LLM's refined search query
 
         books = Book.objects.filter(title__icontains=res.content)  # Use LLM output for filtering
         serializer = BookSerializer(books, many=True)
@@ -72,31 +79,29 @@ def determine_tool(query: str) -> str:
         return None
 
 
-
 def handle_query(query: str, **kwargs) -> dict:
     """Handle the user query using Langchain chains."""
-
+    
     tool_name = determine_tool(query)
 
     if tool_name == "perform_purchase":
         user_id = kwargs.get("user_id")
-        book_id = kwargs.get("book_id")
-        if user_id is None or book_id is None:
+        if user_id is None:
             return {
                 "status": "error",
-                "message": "Missing user_id or book_id for purchase."
+                "message": "Missing user_id for purchase."
             }
-        return perform_purchase(user_id, book_id)
+        return perform_purchase.invoke({"query": query, "user_id": user_id})
+
+
 
     elif tool_name == "perform_search":
-        # Langchain Prompt and Chain for refining the search query (Optional but recommended)
-        prompt_template = """Refine the following user query for a book search: {query}""" # Improve prompt
+        prompt_template = """Refine the following user query for a book search: {query}"""  
         prompt = PromptTemplate(input_variables=["query"], template=prompt_template)
-        # Assuming generate_response is compatible with Langchain
-        llm_chain = LLMChain(llm=generate_response, prompt=prompt) # You might need to adapt this
-        refined_query = llm_chain.run(query) # Run the chain
+        llm_chain = LLMChain(llm=generate_response, prompt=prompt)  
+        refined_query = llm_chain.run(query)  
         print(f"Refined Query: {refined_query}")
-        return perform_search(refined_query)  # Use the refined query
+        return perform_search.invoke(query=refined_query)  
 
     else:
         return {
@@ -105,16 +110,15 @@ def handle_query(query: str, **kwargs) -> dict:
         }
 
 
+# # Example usage
+# user_query = "I want to buy a book about AI"
+# response = handle_query(user_query, user_id=1)
+# print(response)
 
-# Example usage (same as before)
-user_query = "I want to buy book with ID 123"
-response = handle_query(user_query, user_id=1, book_id=123)
-print(response)
+# user_query = "Find books about Python programming"
+# response = handle_query(user_query)
+# print(response)
 
-user_query = "Find books about Python programming"
-response = handle_query(user_query)
-print(response)
-
-user_query = "I'm looking for a book about deep learning" # Test with more complex query
-response = handle_query(user_query)
-print(response)
+# user_query = "I'm looking for a book about deep learning"
+# response = handle_query(user_query)
+# print(response)

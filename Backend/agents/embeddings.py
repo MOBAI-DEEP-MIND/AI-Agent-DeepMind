@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from langchain_community.embeddings import JinaEmbeddings
 from qdrant_client.models import PointStruct
 import tqdm
-from vector_db import qdrant  
+from .vector_db import qdrant  
 
 # Load environment variables
 load_dotenv()

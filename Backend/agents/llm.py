@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
-from embeddings import main
+from .embeddings import main
 
 # Load the .env file
 load_dotenv()
