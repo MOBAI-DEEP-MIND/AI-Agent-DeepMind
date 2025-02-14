@@ -6,14 +6,8 @@ from rest_framework import status
 import os
 from langchain import Langchain
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# Initialize LangChain with Gemini
-lc = Langchain(api_key=GEMINI_API_KEY)
 
-# Confirm connection
-status = lc.check_connection()
-print("Connection to Gemini:", status)
 
 @tool
 def perform_purchase(user_id: int, book_id: int) -> dict:

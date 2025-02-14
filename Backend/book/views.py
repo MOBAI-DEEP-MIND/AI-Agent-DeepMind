@@ -63,6 +63,7 @@ class SearchBookView(CreateAPIView):
  
 
 
+
 class BookDetailView(RetrieveAPIView,ListAPIView):
     """get the query of the search and return the result of the search"""
 
@@ -98,6 +99,7 @@ class PurchaseAgentView(CreateAPIView):
         return Response(result, status=status.HTTP_200_OK)
 
 import random
+
 
 class PurchaseView(APIView):
     serializer_class = PurchaseSerializer
