@@ -14,9 +14,10 @@ urlpatterns = [
     path('categories/',CategoryView.as_view(),name='category'),
     path('categories/<int:pk>',CategoryView.as_view(),name='category'),
     path('purchase/',PurchaseView.as_view(),name='purchase'),
-    path('search/',SearchBookView.as_view(),name='search'),
+    path('query/',SearchBookView.as_view(),name='search'),
     path('books/<int:pk>/',BookDetailView.as_view(),name='book'),
     path('purchase-agent/',PurchaseAgentView.as_view(),name='purchase-agent'),
+    path('credit-card/',PurchaseAgentView.as_view(),name='credit-card'),
 ]
 
 

@@ -20,10 +20,15 @@ class Book(models.Model):
     rating = models.FloatField(null=True, blank=True)
     price = models.FloatField(editable=False)
 
+
+
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username  = models.CharField(max_length=255, unique=True,default='')
     email = models.EmailField(_("email address"), unique=True)
     credit = models.FloatField()
+    address = models.TextField()
+
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -41,14 +46,19 @@ class History(models.Model):
     query = models.TextField() 
     books = models.ManyToManyField(Book, related_name='history_books')
 
+
 class Busket(models.Model):
     book = models.ManyToManyField(Book, related_name='busket_books')    
     user = models.ForeignKey(CustomUser, related_name='busket_entries', on_delete=models.CASCADE)
+
 
 class Purchase(models.Model):
     user = models.ForeignKey(CustomUser, related_name='purchases', on_delete=models.CASCADE)   
     book = models.ManyToManyField(Book, related_name='purchase_books')   
     number_books = models.IntegerField()
+    credit_card_number = models.IntegerField()
+    cvv = models.IntegerField()
+    expiration_date = models.DateField()
 
     def save(self, *args, **kwargs):
         self.user.credit -= self.number_books * self.book.price

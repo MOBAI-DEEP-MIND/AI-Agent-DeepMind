@@ -96,7 +96,7 @@ qdrant-client==1.13.2
 pandas==1.4.1
 python-dotenv==1.0.1
 openai==1.63.0
-sentence-transformers==3.4.1
+# sentence-transformers==3.4.1
 langchain_community==0.3.17
 urllib3==2.3.0
 yarl==1.18.3
