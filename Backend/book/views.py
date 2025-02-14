@@ -10,10 +10,20 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-class BookView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
+class BookAdminView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]
+
+class BookView(RetrieveAPIView,ListAPIView):
+    """get the query of the search and return the result of the search"""
+
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
 
 class CategoryView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
@@ -48,12 +58,3 @@ class SearchBookView(CreateAPIView):
 
  
 # class BookDetailView(RetrieveAPIView):
-
-class BookDetailView(RetrieveAPIView,ListAPIView):
-    """get the query of the search and return the result of the search"""
-
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
-
