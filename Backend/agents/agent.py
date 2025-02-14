@@ -8,7 +8,6 @@ from langchain import Langchain
 
 
 
-
 @tool
 def perform_purchase(user_id: int, book_id: int) -> dict:
     """

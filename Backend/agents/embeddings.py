@@ -1,93 +1,105 @@
-from vector_db import qdrant as client
-from qdrant_client.models import PointStruct
-from openai import AzureOpenAI
-from typing import List, Union
-import pandas as pd
-from dotenv import load_dotenv
 import os
-
+from dotenv import load_dotenv
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_community.document_loaders import TextLoader
+from langchain_community.embeddings import JinaEmbeddings
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams, PointStruct
+from transformers import AutoTokenizer
+import tqdm
+from vector_db import qdrant 
+# Load environment variables
 load_dotenv()
 
-# Initialize the Azure OpenAI client
-client_azure = AzureOpenAI(
-    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-    api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
-)
-
-
-#loading the data from the csv file
-
-data = pd.read_csv('data_cleaned.csv')
-texts = data['text']
-
-
-
-def create_embeddings(
-    texts: Union[str, List[str]],
-    client: AzureOpenAI,
-    model: str = "text-embedding-ada-002",
-    batch_size: int = 100
-) -> List[List[float]]:
+def split_file_by_lines(file_path, lines_per_chunk=20):
+    """Split the file into chunks of specified number of lines"""
+    chunks = []
     
-    # Convert single string to list for consistent processing
-    if isinstance(texts, str):
-        texts = [texts]
+    with open(file_path, 'r') as file:
+        current_chunk = []
+        for line in file:
+            current_chunk.append(line)
+            if len(current_chunk) >= lines_per_chunk:
+                chunks.append(''.join(current_chunk))
+                current_chunk = []
+        
+        # Add any remaining lines as the last chunk
+        if current_chunk:
+            chunks.append(''.join(current_chunk))
     
-    all_embeddings = []
+    return chunks
+
+def process_chunks(chunks, embeddings_model, batch_size=5):
+    """Process chunks into embeddings"""
+    qdrant_points = []
     
-    try:
-        # Process in batches to handle large numbers of texts
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
+    # Create progress bar
+    pbar = tqdm.tqdm(total=len(chunks), desc="Processing embeddings")
+    
+    for i in range(0, len(chunks), batch_size):
+        batch = chunks[i:i + batch_size]
+        
+        try:
+            # Generate embeddings for the batch
+            batch_embeddings = embeddings_model.embed_documents(batch)
             
-            response = client.embeddings.create(
-                input=batch,
-                model=model
-            )
+            # Create Qdrant points
+            for j, embedding in enumerate(batch_embeddings):
+                qdrant_points.append(
+                    PointStruct(
+                        id=i + j,
+                        vector=embedding,
+                        payload={"text": batch[j]}
+                    )
+                )
             
-            # Extract embeddings from response
-            batch_embeddings = [item.embedding for item in response.data]
-            all_embeddings.extend(batch_embeddings)
+            pbar.update(len(batch))
             
-        return all_embeddings
+        except Exception as e:
+            print(f"Error processing batch {i//batch_size}: {str(e)}")
+            continue
     
-    except Exception as e:
-        raise Exception(f"Failed to create embeddings: {str(e)}")
+    pbar.close()
+    return qdrant_points
 
-
-
-def insert_embeddings(data, collection_name, embeddings):
-    # Prepare points (embeddings + metadata) for Qdrant
-    points = [
-        PointStruct(
-            id=idx,  # Unique ID for each point
-            vector=embedding.tolist(),  # Convert numpy array to list
-            payload={"text": text}  # Metadata (e.g., original text)
-        )
-        for idx, (text, embedding) in enumerate(zip(texts, embeddings))
-    ]
-
-    # Upload points to Qdrant
-    client.upsert(
-        collection_name=collection_name,
-        points=points
+def main():
+    # Define paths
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, "output.txt")
+    collection_name = "documents"
+    
+    # Check if file exists
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File {file_path} does not exist.")
+    
+    # Split file into 20-line chunks
+    print("Splitting document into 20-line chunks...")
+    chunks = split_file_by_lines(file_path, lines_per_chunk=20)
+    print(f"Created {len(chunks)} chunks")
+    
+    # Initialize Jina Embeddings
+    embeddings_model = JinaEmbeddings(
+        jina_api_key=os.getenv("JINA_API_KEY"),
+        model_name="jina-embeddings-v2-base-en"
     )
+    
+    # Process chunks into embeddings
+    print("Processing embeddings...")
+    qdrant_points = process_chunks(chunks, embeddings_model)
+    
+    # Insert into Qdrant
+    if qdrant_points:
+        print("Inserting embeddings into Qdrant...")
+        
+        
+        # Insert in smaller batches
+        batch_size = 100
+        for i in range(0, len(qdrant_points), batch_size):
+            batch = qdrant_points[i:i + batch_size]
+            qdrant.upsert(collection_name=collection_name, points=batch)
+            print(f"Inserted batch {i//batch_size + 1}/{len(qdrant_points)//batch_size + 1}")
+    
+    print("Process completed successfully!")
 
-def search(collection_name, query, top_k=5):
-
-    # Embed the query
-    query_embedding = create_embeddings([query])[0]
-
-    # Search for similar points
-    results = client.search(
-        collection_name=collection_name,
-        query=query_embedding.tolist(),
-        top_k=top_k
-    )
-
-    return results
-
-# Create embeddings for all texts
-embeddings = create_embeddings(texts, client_azure)
-print(f"Created {len(embeddings)} embeddings.")
+if __name__ == "__main__":
+    main()

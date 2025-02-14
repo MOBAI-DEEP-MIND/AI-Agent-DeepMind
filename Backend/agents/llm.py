@@ -21,5 +21,7 @@ llm = ChatGoogleGenerativeAI(
 
 def generate_response (prompt,context) :
     """Generate a response from the LLM."""
+    prompt_form
     response = llm.chat(prompt, context)
     return response
+
