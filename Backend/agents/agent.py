@@ -4,8 +4,10 @@ from book.serializers import PurchaseSerializer
 from rest_framework.response import Response
 from rest_framework import status
 import os
-# from langchain import Langchain
-
+from core.models import Book
+from book.serializers import BookSerializer
+from llm import generate_response
+from embeddings import main
 
 
 @tool
@@ -38,6 +40,37 @@ def perform_purchase(user_id: int, book_id: int) -> dict:
                 "message": "Invalid purchase data.",
                 "errors": serializer.errors
             }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+    
+
+@tool
+def perform_search(query: str) -> dict:
+    """
+    Perform a search for books based on a query.
+
+    Args:
+        query (str): The search query.
+
+    Returns:
+        dict: A dictionary containing the search results or an error message.
+    """
+    try:
+
+        # Perform the search
+        
+        context_data = main(query)
+
+        res = generate_response(query, context_data)
+        print(res.content)
+
+        books = Book.objects.filter(title__icontains=res.content)
+        serializer = BookSerializer(books, many=True)
+        return serializer.data
+            
     except Exception as e:
         return {
             "status": "error",
