@@ -4,8 +4,10 @@ from book.serializers import PurchaseSerializer
 from rest_framework.response import Response
 from rest_framework import status
 import os
-# from langchain import Langchain
-
+from core.models import Book
+from book.serializers import BookSerializer
+from llm import generate_response
+from embeddings import main
 
 
 @tool
@@ -45,4 +47,3 @@ def perform_purchase(user_id: int, book_id: int) -> dict:
             "status": "error",
             "message": str(e)
         }
-    
