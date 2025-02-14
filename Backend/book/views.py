@@ -62,8 +62,7 @@ class SearchBookView(CreateAPIView):
 
  
 # class BookDetailView(RetrieveAPIView):
-<<<<<<< HEAD
-=======
+
 
 class BookDetailView(RetrieveAPIView,ListAPIView):
     """get the query of the search and return the result of the search"""
@@ -98,4 +97,3 @@ class PurchaseAgentView(CreateAPIView):
 
         # Return the result as a JSON response
         return Response(result, status=status.HTTP_200_OK)
->>>>>>> a1c83b073cb392afd98a947f02884b6ea19a4640

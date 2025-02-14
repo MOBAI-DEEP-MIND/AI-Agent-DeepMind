@@ -1,7 +1,6 @@
 from django.urls import path
 
 from .views import BookView,PurchaseView, SearchBookView, BookAdminView, AuthorView, CategoryView
-=======
 from .views import BookView,PurchaseView, SearchBookView, BookDetailView, AuthorView, CategoryView, PurchaseAgentView
 
 

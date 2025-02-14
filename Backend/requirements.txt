@@ -23,3 +23,7 @@ uritemplate==4.1.1
 psycopg2-binary==2.9.10
 langchain==0.3.18
 langchain-google-genai==2.0.9
+qdrant-client==1.13.2
+pandas==1.4.1
+python-dotenv==1.0.1
+openai==1.63.0
