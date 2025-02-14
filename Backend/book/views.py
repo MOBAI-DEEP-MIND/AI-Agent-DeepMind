@@ -8,6 +8,8 @@ from rest_framework import status
 from .serializers import PurshaseSerializer,BookSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from core.models import CustomUser
+from agents.agent import perform_purchase
 
 
 class BookAdminView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
@@ -25,10 +27,12 @@ class BookView(RetrieveAPIView,ListAPIView):
     authentication_classes = [JWTAuthentication]
 
 
+
 class CategoryView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUser]    
+
 
 class AuthorView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
     queryset = Author.objects.all()
@@ -58,3 +62,40 @@ class SearchBookView(CreateAPIView):
 
  
 # class BookDetailView(RetrieveAPIView):
+<<<<<<< HEAD
+=======
+
+class BookDetailView(RetrieveAPIView,ListAPIView):
+    """get the query of the search and return the result of the search"""
+
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+
+
+
+class PurchaseAgentView(CreateAPIView):
+    """perform the purchase of the book using ai agent"""
+    def post(self, request, *args, **kwargs):
+        # Extract user_id and book_id from the request
+        user_id = request.POST.get("user_id")
+        book_id = request.POST.get("book_id")
+
+        # Validate that user and book exist
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            book = Book.objects.get(id=book_id)
+        except (CustomUser.DoesNotExist, Book.DoesNotExist):
+            return Response({
+                "status": "error",
+                "message": "User or Book does not exist."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Perform the purchase using the tool
+        result = perform_purchase(user_id=user_id, book_id=book_id)
+
+        # Return the result as a JSON response
+        return Response(result, status=status.HTTP_200_OK)
+>>>>>>> a1c83b073cb392afd98a947f02884b6ea19a4640
