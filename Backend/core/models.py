@@ -18,6 +18,7 @@ class Book(models.Model):
     published_date = models.DateField()
     categories = models.ManyToManyField(Category, related_name='books')
     rating = models.FloatField(null=True, blank=True)
+    price = models.FloatField(editable=False)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username  = models.CharField(max_length=255, unique=True,default='')
@@ -48,3 +49,8 @@ class Purchase(models.Model):
     user = models.ForeignKey(CustomUser, related_name='purchases', on_delete=models.CASCADE)   
     book = models.ManyToManyField(Book, related_name='purchase_books')   
     number_books = models.IntegerField()
+
+    def save(self, *args, **kwargs):
+        self.user.credit -= self.number_books * self.book.price
+        self.user.save()
+        super().save(*args, **kwargs)

@@ -5,27 +5,40 @@ from rest_framework.permissions import AllowAny,IsAdminUser,IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import PurshaseSerializer,BookSerializer
+from .serializers import PurchaseSerializer,BookSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import CustomUser
 from agents.agent import perform_purchase
 
 
-class BookAdminView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
+class BookAdminListView(ListCreateAPIView):
+    """Admin can list and create books"""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAdminUser]
     authentication_classes = [JWTAuthentication]
 
-class BookView(RetrieveAPIView,ListAPIView):
-    """get the query of the search and return the result of the search"""
+class BookAdminDetailView(RetrieveUpdateDestroyAPIView):
+    """Admin can retrieve, update, or delete a book"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]
 
+class BookView(ListAPIView):
+    """Get a list of books"""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+class BookDetailView(RetrieveAPIView):
+    """Retrieve a specific book"""
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 
 class CategoryView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
@@ -41,11 +54,11 @@ class AuthorView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
 
 
 class PurchaseView(APIView):
-    serializer_class = PurshaseSerializer
+    serializer_class = PurchaseSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self,request):
-        serializer = PurshaseSerializer(data=request.data)
+        serializer = PurchaseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data,status=status.HTTP_201_CREATED)
@@ -98,6 +111,7 @@ class PurchaseAgentView(CreateAPIView):
         # Return the result as a JSON response
         return Response(result, status=status.HTTP_200_OK)
 
+import random
 
 
 class PurchaseView(APIView):
@@ -108,7 +122,7 @@ class PurchaseView(APIView):
     def post(self,request):
         serializer = PurchaseSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save(user=request.user,price=random.randint(1,100))
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
