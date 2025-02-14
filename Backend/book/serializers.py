@@ -9,6 +9,7 @@ class BookSerializer(ModelSerializer):
         fields = '__all__'
  
 class BookSearchSerializer(serializers.Serializer):
+    query = serializers.CharField(max_length=100)
     class Meta:
         model = Book
         fields = ['query']

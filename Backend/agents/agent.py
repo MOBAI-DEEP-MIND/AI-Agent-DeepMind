@@ -5,7 +5,7 @@ from core.models import Purchase, Book
 from book.serializers import BusketSerializer, BookSerializer
 from .llm import generate_response  # Assuming this is your LLM interaction function
 from .embeddings import main  # Assuming this is your embedding function
-
+from agents.llm import llm  # Assuming this is your LLM instance
 
 @tool
 def perform_purchase(query: str, user_id: int) -> dict:
@@ -38,7 +38,7 @@ def perform_purchase(query: str, user_id: int) -> dict:
         else:
             return {
                 "status": "error",
-                "message": serializer.errors
+                "message": f"def{serializer.errors}"
             }
 
     except Exception as e:
@@ -54,11 +54,9 @@ def perform_search(query: str):
     try:
         context_data = main(query)
         res = generate_response(query, context_data)
-        print(res.content)  # This prints the LLM's refined search query
-
-        books = Book.objects.filter(title__icontains=res.content)  # Use LLM output for filtering
-        serializer = BookSerializer(books, many=True)
-        return serializer.data
+        print(query)
+        print("llm reponse",res)
+        return res
     except Exception as e:
         return {
             "status": "error",
@@ -98,10 +96,10 @@ def handle_query(query: str, **kwargs) -> dict:
     elif tool_name == "perform_search":
         prompt_template = """Refine the following user query for a book search: {query}"""  
         prompt = PromptTemplate(input_variables=["query"], template=prompt_template)
-        llm_chain = LLMChain(llm=generate_response, prompt=prompt)  
+        llm_chain = LLMChain(llm=llm, prompt=prompt)  
         refined_query = llm_chain.run(query)  
-        print(f"Refined Query: {refined_query}")
-        return perform_search.invoke(query=refined_query)  
+        print(f"Refined Query: {query}")
+        return perform_search.invoke(input=refined_query)  
 
     else:
         return {

@@ -78,7 +78,8 @@ class SearchBookView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         query = request.data.get("query")
         response = handle_query(query)
-        return Response(response, status=status.HTTP_200_OK)
+        print("res",response) 
+        return Response({"data":response}, status=status.HTTP_200_OK)
     
 
 
