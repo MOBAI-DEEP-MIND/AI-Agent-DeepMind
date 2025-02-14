@@ -46,7 +46,7 @@ class BookDetailView(RetrieveAPIView):
 class CategoryView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminUser]    
+    permission_classes = [IsAuthenticated]    
 
 
 class AuthorView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
