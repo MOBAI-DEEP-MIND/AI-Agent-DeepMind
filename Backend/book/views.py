@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny,IsAdminUser,IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import PurshaseSerializer,BookSerializer
+from .serializers import PurchaseSerializer,BookSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import CustomUser
@@ -97,6 +97,7 @@ class PurchaseAgentView(CreateAPIView):
         # Return the result as a JSON response
         return Response(result, status=status.HTTP_200_OK)
 
+import random
 
 class PurchaseView(APIView):
     serializer_class = PurchaseSerializer
@@ -106,7 +107,7 @@ class PurchaseView(APIView):
     def post(self,request):
         serializer = PurchaseSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save(user=request.user,price=random.randint(1,100))
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
