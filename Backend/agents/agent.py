@@ -21,6 +21,8 @@ def perform_purchase(user_id: int, book_id: int) -> dict:
         dict: A dictionary containing the purchase details or an error message.
     """
     try:
+
+        
         # Create the purchase
         purchase_data = {"user": user_id, "book": book_id}
         serializer = PurchaseSerializer(data=purchase_data)
@@ -43,3 +45,4 @@ def perform_purchase(user_id: int, book_id: int) -> dict:
             "status": "error",
             "message": str(e)
         }
+    
