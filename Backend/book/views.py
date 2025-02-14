@@ -41,11 +41,11 @@ class AuthorView(ListCreateAPIView,RetrieveUpdateDestroyAPIView):
 
 
 class PurchaseView(APIView):
-    serializer_class = PurshaseSerializer
+    serializer_class = PurchaseSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self,request):
-        serializer = PurshaseSerializer(data=request.data)
+        serializer = PurchaseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data,status=status.HTTP_201_CREATED)

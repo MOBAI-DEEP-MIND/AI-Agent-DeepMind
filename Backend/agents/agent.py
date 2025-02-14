@@ -1,10 +1,10 @@
 from langchain_core.tools import tool
 from core.models import Purchase
-from book.serializers import PurshaseSerializer
+from book.serializers import PurchaseSerializer
 from rest_framework.response import Response
 from rest_framework import status
 import os
-from langchain import Langchain
+# from langchain import Langchain
 
 
 
@@ -24,7 +24,7 @@ def perform_purchase(user_id: int, book_id: int) -> dict:
     try:
         # Create the purchase
         purchase_data = {"user": user_id, "book": book_id}
-        serializer = PurshaseSerializer(data=purchase_data)
+        serializer = PurchaseSerializer(data=purchase_data)
         
         if serializer.is_valid():
             serializer.save()
