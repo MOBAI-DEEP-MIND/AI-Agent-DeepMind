@@ -1,8 +1,9 @@
 from django.urls import path
 
-from .views import BookView,PurchaseView, SearchBookView, BookAdminView, AuthorView, CategoryView
-from .views import BookView,PurchaseView, SearchBookView, BookDetailView, AuthorView, CategoryView, PurchaseAgentView
+from .views import BookView,PurchaseView, SearchBookView, BookDetailView, \
+        AuthorView, CategoryView, PurchaseAgentView, BookAdminView, BookAdminView,  BookAdminView
 
+from .views import PurchaseView
 
 urlpatterns = [
     path('book/',BookView.as_view(),name='book'),

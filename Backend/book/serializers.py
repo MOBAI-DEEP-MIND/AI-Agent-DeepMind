@@ -6,11 +6,7 @@ class BookSerializer(ModelSerializer):
     class Meta:
         model = Book
         fields = '__all__'
-
-class PurshaseSerializer(ModelSerializer):
-    class Meta:
-        model = Purchase
-        fields = '__all__'        
+ 
 
 class CategorySerializer(ModelSerializer):
     class Meta:
@@ -20,4 +16,10 @@ class CategorySerializer(ModelSerializer):
 class AuthorSerializer(ModelSerializer):
     class Meta:
         model = Author
-        fields = '__all__'                
+        fields = '__all__'       
+
+class PurchaseSerializer(ModelSerializer):
+    class Meta:
+        model = Purchase
+        fields = ['user','book','number_books']
+        extra_kwargs = {'user': {'read_only': True}}

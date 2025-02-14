@@ -61,7 +61,7 @@ class SearchBookView(CreateAPIView):
         return super().create(request, *args, **kwargs)
 
  
-# class BookDetailView(RetrieveAPIView):
+
 
 
 class BookDetailView(RetrieveAPIView,ListAPIView):
@@ -97,3 +97,25 @@ class PurchaseAgentView(CreateAPIView):
 
         # Return the result as a JSON response
         return Response(result, status=status.HTTP_200_OK)
+
+
+
+class PurchaseView(APIView):
+    serializer_class = PurchaseSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self,request):
+        serializer = PurchaseSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+# class BusketView(APIView):
+#     serializer_class = BookSerializer
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [JWTAuthentication]
+    
+#     def get(self,request):
+#         queryset = Book.objects.all().filter(user=self.request.user)
